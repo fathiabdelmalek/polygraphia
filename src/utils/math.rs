@@ -1,11 +1,7 @@
 use crate::PolygraphiaError;
 
 pub fn gcd(a: u8, b: u8) -> u8 {
-    if b == 0 {
-        a
-    } else {
-        gcd(b, a % b)
-    }
+    if b == 0 { a } else { gcd(b, a % b) }
 }
 
 pub fn are_coprime(a: u8, b: u8) -> bool {
@@ -14,16 +10,19 @@ pub fn are_coprime(a: u8, b: u8) -> bool {
 
 pub fn mod_inverse(a: u8, m: u8) -> Result<u8, PolygraphiaError> {
     if !are_coprime(a, m) {
-        return Err(PolygraphiaError::InvalidInput(format!("Modular inverse does not exist for {a} mod {m} (not coprime)")));
+        return Err(PolygraphiaError::InvalidInput(format!(
+            "Modular inverse does not exist for {a} mod {m} (not coprime)"
+        )));
     }
     for i in 1..m {
-        if (a * i).rem_euclid(m) == 1 {
+        if (a as u16 * i as u16).rem_euclid(m as u16) == 1 {
             return Ok(i);
         }
     }
-    Err(PolygraphiaError::InvalidInput(format!("Failed to compute modular inverse for {a} mod {m}")))
+    Err(PolygraphiaError::InvalidInput(format!(
+        "Failed to compute modular inverse for {a} mod {m}"
+    )))
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -47,8 +46,8 @@ mod tests {
 
         // Verify the inverse property
         for a in [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25] {
-            let inv = mod_inverse(a, 26).unwrap();
-            assert_eq!((a * inv) % 26, 1);
+            let inv = mod_inverse(a, 26).unwrap() as u16;
+            assert_eq!((a as u16 * inv) % 26, 1);
         }
     }
 

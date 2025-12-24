@@ -1,6 +1,6 @@
 use crate::error::PolygraphiaError;
-use crate::utils::TextMode;
 use crate::traits::Cipher;
+use crate::utils::TextMode;
 
 #[derive(Debug, Clone)]
 pub struct Caesar {
@@ -51,52 +51,57 @@ impl Caesar {
             -(self.shift as i8)
         };
         let shifted = (idx as i8 + shift).rem_euclid(26) as u8;
-        let result = (base + shifted) as char;
-        result
+        (base + shifted) as char
     }
 
     fn process_text(&self, text: &str, encrypt: bool) -> String {
         match self.mode {
-            TextMode::AlphaOnly => {
-                text.chars()
-                    .filter(|c| c.is_ascii_alphabetic())
-                    .map(|c| self.shift_char(c, encrypt))
-                    .collect()
-            }
-            TextMode::PreserveAll => {
-                text.chars()
-                    .map(|c| {
-                        if c.is_ascii_alphabetic() {
-                            self.shift_char(c, encrypt)
-                        } else {
-                            c
-                        }
-                    })
-                    .collect()
-            }
+            TextMode::AlphaOnly => text
+                .chars()
+                .filter(|c| c.is_ascii_alphabetic())
+                .map(|c| self.shift_char(c, encrypt))
+                .collect(),
+            TextMode::PreserveAll => text
+                .chars()
+                .map(|c| {
+                    if c.is_ascii_alphabetic() {
+                        self.shift_char(c, encrypt)
+                    } else {
+                        c
+                    }
+                })
+                .collect(),
         }
     }
 }
 
 impl Cipher for Caesar {
     fn encrypt(&self, plaintext: &str) -> Result<String, PolygraphiaError> {
-        if plaintext.is_empty () {
-            return Err(PolygraphiaError::InvalidInput("Empty plaintext".to_string()));
+        if plaintext.is_empty() {
+            return Err(PolygraphiaError::InvalidInput(
+                "Empty plaintext".to_string(),
+            ));
         }
         let result = self.process_text(plaintext, true);
         if self.mode == TextMode::AlphaOnly && result.is_empty() {
-            return Err(PolygraphiaError::InvalidInput("Plaintext must contain at least one alphabetic character".to_string()));
+            return Err(PolygraphiaError::InvalidInput(
+                "Plaintext must contain at least one alphabetic character".to_string(),
+            ));
         }
         Ok(result)
     }
 
     fn decrypt(&self, ciphertext: &str) -> Result<String, PolygraphiaError> {
-        if ciphertext.is_empty () {
-            return Err(PolygraphiaError::InvalidInput("Empty ciphertext".to_string()));
+        if ciphertext.is_empty() {
+            return Err(PolygraphiaError::InvalidInput(
+                "Empty ciphertext".to_string(),
+            ));
         }
         let result = self.process_text(ciphertext, false);
         if self.mode == TextMode::AlphaOnly && result.is_empty() {
-            return Err(PolygraphiaError::InvalidInput("ciphertext must have at least one alphabetic character".to_string()));
+            return Err(PolygraphiaError::InvalidInput(
+                "ciphertext must have at least one alphabetic character".to_string(),
+            ));
         }
         Ok(result)
     }
@@ -111,7 +116,6 @@ impl Drop for Caesar {
         self.shift = 0;
     }
 }
-
 
 // ==================== Tests ====================
 #[cfg(test)]
@@ -186,11 +190,17 @@ mod tests {
         let plaintext = "The Quick Brown Fox Jumps Over The Lazy Dog 123!";
         let encrypted = cipher.encrypt(plaintext).unwrap();
         let decrypted = cipher.decrypt(&encrypted).unwrap();
-        assert_eq!(decrypted, "The Quick Brown Fox Jumps Over The Lazy Dog 123!");
+        assert_eq!(
+            decrypted,
+            "The Quick Brown Fox Jumps Over The Lazy Dog 123!"
+        );
 
         // Verify roundtrip
         let cipher2 = Caesar::new(7).unwrap();
-        assert_eq!(cipher2.decrypt(&encrypted).unwrap(), "The Quick Brown Fox Jumps Over The Lazy Dog 123!");
+        assert_eq!(
+            cipher2.decrypt(&encrypted).unwrap(),
+            "The Quick Brown Fox Jumps Over The Lazy Dog 123!"
+        );
     }
 
     #[test]
@@ -223,7 +233,7 @@ mod tests {
         let mut cipher = Caesar::new(3).unwrap();
         assert_eq!(cipher.encrypt("hello").unwrap(), "khoor");
 
-        cipher.set_shift(5);
+        let _ = cipher.set_shift(5);
         assert_eq!(cipher.encrypt("hello").unwrap(), "mjqqt");
     }
 
@@ -271,7 +281,10 @@ mod tests {
         assert_eq!(cipher.decrypt("fgh123ijk").unwrap(), "abc123def");
 
         // Test symbols
-        assert_eq!(cipher.encrypt("hello@world.com").unwrap(), "mjqqt@btwqi.htr");
+        assert_eq!(
+            cipher.encrypt("hello@world.com").unwrap(),
+            "mjqqt@btwqi.htr"
+        );
 
         // Test mixed content
         assert_eq!(cipher.encrypt("Password123!").unwrap(), "Ufxxbtwi123!");

@@ -1,11 +1,6 @@
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TextMode {
-    AlphaOnly,
+    #[default]
     PreserveAll,
-}
-
-impl Default for TextMode {
-    fn default() -> Self {
-        TextMode::PreserveAll
-    }
+    AlphaOnly,
 }
