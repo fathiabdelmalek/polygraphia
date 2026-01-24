@@ -2,6 +2,7 @@ pub mod classic;
 pub mod error;
 pub mod traits;
 pub mod utils;
+mod ffi;
 
 pub use classic::Affine;
 pub use classic::Caesar;
