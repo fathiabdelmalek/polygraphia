@@ -27,14 +27,37 @@ impl CResult {
     }
 }
 
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn free_string(ptr: *mut c_char) {
+    unsafe {
+        if !ptr.is_null() {
+            let _ = CString::from_raw(ptr);
+        }
+    }
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn free_c_result(result: CResult) {
+    unsafe {
+        if !result.data.is_null() {
+            let _ = CString::from_raw(result.data);
+        }
+        if !result.error.is_null() {
+            let _ = CString::from_raw(result.error);
+        }
+    }
+}
+
 /// Helper to convert C string to Rust string
 pub unsafe fn c_str_to_rust(c_str: *const c_char) -> Result<String, String> {
     if c_str.is_null() {
         return Err("Null pointer".to_string());
     }
 
-    CStr::from_ptr(c_str)
-        .to_str()
-        .map(|s| s.to_string())
-        .map_err(|e| format!("Invalid UTF-8: {}", e))
+    unsafe {
+        CStr::from_ptr(c_str)
+            .to_str()
+            .map(|s| s.to_string())
+            .map_err(|e| format!("Invalid UTF-8: {}", e))
+    }
 }

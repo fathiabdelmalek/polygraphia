@@ -1,6 +1,6 @@
 [package]
 name = "polygraphia"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "A comprehensive library for classical and modern cryptographic algorithms."
 license = "Apache-2.0"
