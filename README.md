@@ -15,7 +15,7 @@ A comprehensive Rust library for classical and modern cryptographic algorithms.
 Add to your `Cargo.toml`:
 ```toml
 [dependencies]
-polygraphia = "0.1.0"
+polygraphia = "0.1.1"
 ```
 
 ## Quick Start
